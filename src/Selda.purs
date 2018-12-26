@@ -18,11 +18,10 @@ module Selda
 
 import Prelude
 
-import Data.Exists (mkExists)
 import Selda.Aggr (Aggr(..))
 import Selda.Col (Col(..))
 import Selda.Col (Col(..), lit, class Lit) as Col
-import Selda.Expr (BinExp(..), BinOp(..), Expr(..), Fn(..))
+import Selda.Expr (BinOp(..), Expr(..), Fn(..))
 import Selda.PG (withPG, query, insert_, insert, deleteFrom, update) as PG
 import Selda.Query (crossJoin, crossJoin_, restrict, leftJoin, leftJoin_, aggregate, groupBy, groupBy', selectFrom, selectFrom_, limit, orderBy) as Query
 import Selda.Query.Type (Order(..))
@@ -30,19 +29,16 @@ import Selda.Query.Type (Query(..), FullQuery(..)) as Query.Type
 import Selda.Table (Table(..)) as Table
 
 expOr ∷ ∀ s. Col s Boolean → Col s Boolean → Col s Boolean
-expOr = binOp (Or identity identity)
+expOr (Col e1) (Col e2) = Col $ EBinOp Or e1 e2
 
 expGt ∷ ∀ s a. Col s a → Col s a → Col s Boolean
-expGt = binOp (Gt identity)
+expGt (Col e1) (Col e2) = Col $ EBinOp Gt e1 e2
 
 expEq ∷ ∀ s a. Col s a → Col s a → Col s Boolean
-expEq = binOp (Eq identity)
-
-binOp ∷ ∀ s o i. BinOp i o → Col s i → Col s i → Col s o
-binOp op (Col e1) (Col e2) = Col $ EBinOp $ mkExists $ BinExp op e1 e2
+expEq (Col e1) (Col e2) = Col $ EBinOp Eq e1 e2
 
 count ∷ ∀ s a. Col s a → Aggr s String
-count (Col e) = Aggr $ Col $ EFn $ FnCount (mkExists e) identity
+count (Col e) = Aggr $ Col $ EFn $ FnCount e
 
 max_ ∷ ∀ s a. Col s a → Aggr s a
 max_ (Col e) = Aggr $ Col $ EFn $ FnMax e

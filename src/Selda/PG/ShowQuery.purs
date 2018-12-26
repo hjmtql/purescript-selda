@@ -4,7 +4,6 @@ import Prelude
 
 import Data.Array (foldl, reverse)
 import Data.Array as Array
-import Data.Exists (Exists, runExists)
 import Data.Maybe (Maybe(..))
 import Data.String (joinWith)
 import Data.Tuple (Tuple(..))
@@ -21,7 +20,7 @@ showState { cols, sources, restricts, aggr, order, limit } =
     <> showOrdering order
     <> showLimit limit
 
-showCols ∷ Array (Tuple Alias (Exists Expr)) → String
+showCols ∷ Array (Tuple Alias Expr) → String
 showCols = case _ of
   [] → ""
   xs → "SELECT " <> (joinWith ", " $ map showAliasedCol xs)
@@ -37,24 +36,24 @@ showSources sources = case Array.uncons $ reverse sources of
   --   -- join on the first place, drop it and interpret as Product
   --   showSources $ Product t : tail
 
-showRestricts ∷ Array (Expr Boolean) → String
+showRestricts ∷ Array Expr → String
 showRestricts = case _ of
   [] → ""
   xs → " WHERE " <> (joinWith " AND " $ map (\e → "(" <> showExpr e <> ")") xs)
 
-showGrouping ∷ Array (Exists Expr) → String
+showGrouping ∷ Array Expr → String
 showGrouping = case _ of
   [] → ""
-  xs → " GROUP BY " <> (joinWith ", " $ map (runExists showExpr) xs)
+  xs → " GROUP BY " <> (joinWith ", " $ map showExpr xs)
 
-showOrdering ∷ Array (Tuple Order (Exists Expr)) → String
+showOrdering ∷ Array (Tuple Order Expr) → String
 showOrdering = case _ of
   [] → ""
   xs → " ORDER BY " <> (joinWith ", " $ map showOrder xs)
 
-showOrder ∷ Tuple Order (Exists Expr) → String
+showOrder ∷ Tuple Order Expr → String
 showOrder (Tuple order e) =
-  runExists showExpr e <> " "
+  showExpr e <> " "
     <> case order of
       Asc → "ASC"
       Desc → "DESC"
@@ -81,5 +80,5 @@ showSource = case _ of
   Product t → showSQL t
   LeftJoin t e → showSQL t <> " ON (" <> showExpr e <> ")"
 
-showAliasedCol ∷ Tuple Alias (Exists Expr) → String
-showAliasedCol (Tuple alias ee) = runExists showExpr ee <> " AS " <> alias
+showAliasedCol ∷ Tuple Alias Expr → String
+showAliasedCol (Tuple alias ee) = showExpr ee <> " AS " <> alias

@@ -13,7 +13,6 @@ import Prelude
 import Control.Monad.Reader (ReaderT, ask, runReaderT)
 import Data.Array (concat)
 import Data.Array as Array
-import Data.Exists (runExists)
 import Data.Newtype (unwrap)
 import Data.String (joinWith)
 import Data.Traversable (traverse)
@@ -133,7 +132,7 @@ update table@(Table { name }) pred up = do
     pred_str = showCol $ pred recordWithCols
     vals =
       getCols (up recordWithCols)
-        # map (\(Tuple n e) → n <> " = " <> runExists showExpr e)
+        # map (\(Tuple n e) → n <> " = " <> showExpr e)
         # joinWith ", "
     q_str = "UPDATE " <> name <> " SET " <> vals <> " WHERE " <> pred_str
   -- liftEffect $ log q_str

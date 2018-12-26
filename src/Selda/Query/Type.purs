@@ -3,7 +3,6 @@ module Selda.Query.Type where
 import Prelude
 
 import Control.Monad.State (State, get, put, runState)
-import Data.Exists (Exists)
 import Data.Maybe (Maybe(..))
 import Data.Newtype (class Newtype)
 import Data.Tuple (Tuple)
@@ -22,7 +21,7 @@ data SQL
 -- Current repr requires Product to be the first Source in sources
 data Source
   = Product SQL
-  | LeftJoin SQL (Expr Boolean)
+  | LeftJoin SQL Expr
 
 -- main state
 -- FROM+JOIN[S] components in `sources`
@@ -31,11 +30,11 @@ data Source
 -- `nextId` provides fresh identifiers
 type GenState = 
   { sources ∷ Array Source
-  , restricts ∷ Array (Expr Boolean)
+  , restricts ∷ Array Expr
   , nextId ∷ Int
-  , cols ∷ Array (Tuple Alias (Exists Expr))
-  , aggr ∷ Array (Exists Expr)
-  , order ∷ Array (Tuple Order (Exists Expr))
+  , cols ∷ Array (Tuple Alias Expr)
+  , aggr ∷ Array Expr
+  , order ∷ Array (Tuple Order Expr)
   , limit ∷ Maybe Int
   }
 

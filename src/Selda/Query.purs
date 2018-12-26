@@ -67,7 +67,7 @@ aggregate q = map (hmap UnAggr) q
 
 groupBy ∷ ∀ s a. Col s a → Query s (Aggr s a)
 groupBy col@(Col e) = do
-  Query $ modify_ \st → st { aggr = st.aggr <> [mkExists e] }
+  Query $ modify_ \st → st { aggr = st.aggr <> [e] }
   pure $ Aggr col
 
 groupBy'
@@ -83,7 +83,7 @@ groupBy' i = do
 
 orderBy ∷ ∀ s a. Order → Col s a → Query s Unit
 orderBy order (Col e) =
-  Query $ modify_ \st → st { order = st.order <> [Tuple order $ mkExists e] }
+  Query $ modify_ \st → st { order = st.order <> [Tuple order e] }
 
 limit ∷ ∀ s. Int → Query s Unit
 limit i = Query $ modify_ $ _ { limit = Just i }
@@ -200,4 +200,4 @@ instance subQueryResultInstance
     ⇒ MappingWithIndex SubQueryResult (SProxy sym) (Col s a) (Col s a)
   where
   mappingWithIndex (SubQueryResult namespace) sym (Col _) = 
-    Col $ EColumn $ Column { namespace, name: reflectSymbol sym }
+    Col $ EColumn $ mkExists $ Column { namespace, name: reflectSymbol sym }
