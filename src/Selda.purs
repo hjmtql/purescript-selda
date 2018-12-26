@@ -29,13 +29,16 @@ import Selda.Query.Type (Query(..), FullQuery(..)) as Query.Type
 import Selda.Table (Table(..)) as Table
 
 expOr ∷ ∀ s. Col s Boolean → Col s Boolean → Col s Boolean
-expOr (Col e1) (Col e2) = Col $ EBinOp Or e1 e2
+expOr = binOp Or
 
 expGt ∷ ∀ s a. Col s a → Col s a → Col s Boolean
-expGt (Col e1) (Col e2) = Col $ EBinOp Gt e1 e2
+expGt = binOp Gt
 
 expEq ∷ ∀ s a. Col s a → Col s a → Col s Boolean
-expEq (Col e1) (Col e2) = Col $ EBinOp Eq e1 e2
+expEq = binOp Eq
+
+binOp ∷ ∀ s o i. BinOp → Col s i → Col s i → Col s o
+binOp op (Col e1) (Col e2) = Col $ EBinOp op e1 e2
 
 count ∷ ∀ s a. Col s a → Aggr s String
 count (Col e) = Aggr $ Col $ EFn $ FnCount e
