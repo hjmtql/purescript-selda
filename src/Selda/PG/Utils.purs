@@ -35,10 +35,10 @@ class ValidateSInCols s (il ∷ RowList)
 instance rLUnColNil ∷ ValidateSInCols s RL.Nil
 else instance rLUnColCons
   ∷ ValidateSInCols s tail
-  ⇒ ValidateSInCols s (RL.Cons sym (Col s t) tail)
+  ⇒ ValidateSInCols s (RL.Cons sym (Col s v t) tail)
 
 class ChangeType i o | i → o
-instance mapTypeCol ∷ ChangeType (Col s a) a
+instance mapTypeCol ∷ ChangeType (Col s v a) a
 else instance mapType ∷ ChangeType a a
 
 data TupleToRecordFunc = TupleToRecordFunc

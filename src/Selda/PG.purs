@@ -26,9 +26,9 @@ import Effect.Console (log)
 import Heterogeneous.Folding (class HFoldl, class HFoldlWithIndex, hfoldl)
 import Prim.RowList (kind RowList)
 import Prim.RowList as RL
-import Selda.Col (class GetCols, Col, getCols, showCol)
+import Selda.Col (class GetCols, Col, getCols)
 import Selda.Expr (showExpr)
-import Selda.PG.ShowQuery (showState)
+import Selda.PG.ShowQuery (Base, showState)
 import Selda.PG.Utils (class ColsToPGHandler, class TableToColsWithoutAlias, class TupleToRecord, RecordLength(..), RecordToTuple(..), TupleToRecordFunc, colsToPGHandler, tableToColsWithoutAlias, tupleToRecord)
 import Selda.Query.Type (FullQuery, runQuery)
 import Selda.Table (class TableColumnNames, Table(..), tableColumnNames)
@@ -87,9 +87,9 @@ insert (Table { name }) xs = concat <$> traverse insert1 xs
 query
   ∷ ∀ o i tup s
   . ColsToPGHandler s i tup o
-  ⇒ GetCols i
+  ⇒ GetCols i Base
   ⇒ FromSQLRow tup
-  ⇒ FullQuery s (Record i)
+  ⇒ FullQuery s Base (Record i)
   → MonadSelda (Array (Record o))
 query q = do
   let
@@ -106,12 +106,12 @@ deleteFrom
   ∷  ∀ r s r'
   . TableToColsWithoutAlias r r'
   ⇒ Table r
-  → ({ | r' } → Col s Boolean)
+  → ({ | r' } → Col s Base Boolean)
   → MonadSelda Unit
 deleteFrom table@(Table { name }) pred = do
   let
     recordWithCols = tableToColsWithoutAlias table
-    pred_str = showCol $ pred recordWithCols
+    pred_str = showExpr $ unwrap $ pred recordWithCols
     q_str = "DELETE FROM " <> name <> " WHERE " <> pred_str
   -- liftEffect $ log q_str
   { pool } ← ask
@@ -121,15 +121,15 @@ deleteFrom table@(Table { name }) pred = do
 update
   ∷  ∀ r s r'
   . TableToColsWithoutAlias r r'
-  ⇒ GetCols r'
+  ⇒ GetCols r' Base
   ⇒ Table r
-  → ({ | r' } → Col s Boolean)
+  → ({ | r' } → Col s Base Boolean)
   → ({ | r' } → { | r' })
   → MonadSelda Unit
 update table@(Table { name }) pred up = do
   let
     recordWithCols = tableToColsWithoutAlias table
-    pred_str = showCol $ pred recordWithCols
+    pred_str = showExpr $ unwrap $ pred recordWithCols
     vals =
       getCols (up recordWithCols)
         # map (\(Tuple n e) → n <> " = " <> showExpr e)

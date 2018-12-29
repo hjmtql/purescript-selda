@@ -21,7 +21,6 @@ import Prelude
 import Selda.Aggr (Aggr(..))
 import Selda.Col (Col(..))
 import Selda.Col (Col(..), lit, class Lit) as Col
-import Selda.Expr (BinOp(..), Expr(..), Fn(..))
 import Selda.PG (withPG, query, insert_, insert, deleteFrom, update) as PG
 import Selda.Query (crossJoin, crossJoin_, restrict, leftJoin, leftJoin_, aggregate, groupBy, groupBy', selectFrom, selectFrom_, limit, orderBy) as Query
 import Selda.Query.Type (Order(..))
